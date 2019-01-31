@@ -1,0 +1,27 @@
+<widget id="ListViewTableControls.widget.ListViewTableControls" needsEntityContext="false" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>Table Controls</name>
+    <description>Dummy widget</description>
+    <icon/>
+    <properties>
+        <property key="headerTableClass" type="string" required="false" defaultValue="">
+            <caption>Header Table CSS Class</caption>
+            <category>Tables</category>
+            <description>A class matching one you've set on the header table.</description>
+        </property>
+        <property key="dataTableClass" type="string" required="false" defaultValue="">
+            <caption>Data Tables CSS Class</caption>
+            <category>Tables</category>
+            <description>A class matching one you've set on the data tables (inside the list view).</description>
+        </property>
+        <property key="hideButtonClass" type="string" required="false" defaultValue="">
+            <caption>Hide Buttons CSS Class</caption>
+            <category>Tables</category>
+            <description>A class matching one you've set on the buttons in column headers that hide columns.</description>
+        </property>
+        <property key="restoreButtonClass" type="string" required="false" defaultValue="">
+            <caption>Restore Button CSS Class</caption>
+            <category>Tables</category>
+            <description>A class matching one you've set on the "restore all columns" button.</description>
+        </property>
+    </properties>
+</widget>
