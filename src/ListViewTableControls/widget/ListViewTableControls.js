@@ -69,7 +69,7 @@ export default defineWidget('ListViewTableControls', false, {
         }
     },
 
-    //Expects an array of column settings
+    //Updates the given table to match the current visibility settings
     _updateColumnVisibility(tbl) {
         for (let i = 0; i < this._tableSettings.length; i++) {
             const vis = this._tableSettings[i].visible;
@@ -85,12 +85,14 @@ export default defineWidget('ListViewTableControls', false, {
         }
     },
 
+    //Updates all tables to match the current visibility settings
     _updateAllColumnVisibility() {
         this._updateRestoreButtonVisibility();
         this._updateColumnVisibility(this._headerTable);
         this._dataTables.forEach(table => this._updateColumnVisibility(table));
     },
 
+    //Updates visibility of the restore columns button
     _updateRestoreButtonVisibility() {
         const hiddenCols = this._tableSettings.filter(setting => setting.visible === false);
         if (hiddenCols && hiddenCols.length) {
@@ -99,6 +101,7 @@ export default defineWidget('ListViewTableControls', false, {
             dojoClass.add(this._restoreButton, "hide");
         }
     },
+    //Restores visibility to all columns
     _restoreAllColumns() {
         this._tableSettings.filter(setting => setting.visible === false).forEach(function(setting) {
             setting.visible = true; //eslint-disable-line no-param-reassign
@@ -106,11 +109,11 @@ export default defineWidget('ListViewTableControls', false, {
         this._updateAllColumnVisibility();
     },
 
-    //Expects an array of column settings
+    //Updates the given table to match the current column order
     _updateColumnOrder(table) {
         this._reorderColumn(table, this._getCurrentColumnOrder(table), this._getColumnOrder());
     },
-
+    //Updates all tables to match the current column order
     _updateAllColumnOrder() {
         this._updateColumnOrder(this._headerTable);
         this._dataTables.forEach(table => this._updateColumnOrder(table));
@@ -130,9 +133,8 @@ export default defineWidget('ListViewTableControls', false, {
         return this._tableSettings.map(setting => setting.index);
     },
 
-
     //sets initial attributes for a table (adds a data attribute indicating original column)
-    _setGridColumnDataAttributes(tbl) {
+    _setGridColumnDataAttributes(tbl, isHeader) {
 
         $("colgroup col", tbl).forEach(function(el) {
             if(typeof el.dataset.origIndex !== "undefined") {
@@ -145,10 +147,12 @@ export default defineWidget('ListViewTableControls', false, {
             if(typeof el.dataset.origIndex !== "undefined") {
                 return;
             }
-            el.setAttribute("draggable", "true");
-            el.ondrop = this._onDrop.bind(this); //eslint-disable-line no-param-reassign
-            el.ondragstart = this._onDrag; //eslint-disable-line no-param-reassign
-            el.ondragover = this._allowDrop; //eslint-disable-line no-param-reassign
+            if(isHeader) {
+                el.setAttribute("draggable", "true");
+                el.ondrop = this._onDrop.bind(this); //eslint-disable-line no-param-reassign
+                el.ondragstart = this._onDrag; //eslint-disable-line no-param-reassign
+                el.ondragover = this._allowDrop; //eslint-disable-line no-param-reassign
+            }
             const index = Array.from(el.parentNode.children).indexOf(el);
             el.dataset.origIndex = index; //eslint-disable-line no-param-reassign
         }.bind(this));
@@ -163,7 +167,7 @@ export default defineWidget('ListViewTableControls', false, {
     _initDataTables() {
         //setup data tables
         this._updateDataTables();
-        this._dataTables.forEach(tbl => this._setGridColumnDataAttributes(tbl));
+        this._dataTables.forEach(tbl => this._setGridColumnDataAttributes(tbl, false));
         this._updateAllColumnOrder();
         this._updateAllColumnVisibility();
     },
@@ -172,7 +176,7 @@ export default defineWidget('ListViewTableControls', false, {
         this._buildInitialSettings();
 
         //setup header table
-        this._setGridColumnDataAttributes(this._headerTable);
+        this._setGridColumnDataAttributes(this._headerTable, true);
 
         // hide columns on click
         $("." + this.hideButtonClass, this._headerTable).on("click", this._hideColumnOnClick.bind(this));
@@ -220,7 +224,7 @@ export default defineWidget('ListViewTableControls', false, {
         this._updateAllColumnVisibility();
     },
 
-    // Re-order table
+    // Re-order table given arrays representing before and after states
     _reorderColumn(table, order0, order1) {
 
         // Check arrays are same length
